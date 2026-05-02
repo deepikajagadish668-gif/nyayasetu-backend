@@ -3,43 +3,58 @@ const multer = require("multer");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const fs = require("fs");
-const Groq = require("groq-sdk");
+const pdf = require("pdf-parse");
+const OpenAI = require("openai");
 
 dotenv.config();
 
 const app = express();
-app.use(cors({ origin: "*" }));
+app.use(cors());
 app.use(express.json());
-app.use(express.static(__dirname));
-const upload = multer({ dest: "uploads/" });
-const openai = new Groq({ apiKey: process.env.OPENAI_API_KEY });
 
-app.get("/", (req, res) => {
-  res.json({ status: "NyayaSetu Backend Running 🚀" });
+const upload = multer({
+  dest: "uploads/",
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === "application/pdf") cb(null, true);
+    else cb(new Error("Only PDF files are allowed"), false);
+  },
 });
 
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+// ✅ HEALTH CHECK
+app.get("/", (req, res) => {
+  res.json({ status: "NyayaSetu Backend Running 🚀", version: "2.0" });
+});
+
+// 📂 UPLOAD + PROCESS PDF
 app.post("/process", upload.single("file"), async (req, res) => {
-  if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+  if (!req.file) {
+    return res.status(400).json({ error: "No PDF file uploaded" });
+  }
+
   const filePath = req.file.path;
+
   try {
+    // 📄 Extract text from PDF
     const dataBuffer = fs.readFileSync(filePath);
-    let text = "";
-    try {
-      const pdfParse = require("pdf-parse/lib/pdf-parse.js");
-      const pdfData = await pdfParse(dataBuffer);
-      text = pdfData.text;
-    } catch(e) {
-      text = dataBuffer.toString("latin1").replace(/[^\x20-\x7E\n]/g, " ").trim();
-    }
+    const pdfData = await pdf(dataBuffer);
+    const text = pdfData.text;
 
-    if (!text || text.length < 100) {
+    if (!text || text.trim().length < 50) {
       fs.unlinkSync(filePath);
-      return res.status(422).json({ error: "Could not extract text from PDF." });
+      return res.status(422).json({ error: "Could not extract readable text from PDF. It may be a scanned image-only document." });
     }
 
+    // 🧠 AI PROMPT
     const prompt = `You are a legal AI assistant for Indian courts.
 
-Analyze the following court judgment and return ONLY valid JSON, no markdown, no explanation:
+Analyze the following court judgment/order text and extract structured information.
+
+Return ONLY valid JSON (no markdown, no explanation) in this exact format:
 {
   "caseNumber": "",
   "judgmentDate": "",
@@ -47,23 +62,14 @@ Analyze the following court judgment and return ONLY valid JSON, no markdown, no
   "court": "",
   "caseType": "",
   "parties": "",
+  "summary": "",
   "riskLevel": "High|Medium|Low",
   "confidenceScore": 85,
-  "summary": "2-3 sentence simple English summary of the case for a common person",
-  "verdict": "The final decision/order of the court in 1-2 sentences",
-  "verdictType": "Allowed|Dismissed|Partly Allowed|Remanded|Stayed",
-  "keyPoints": [
-    "Key point 1 in simple language",
-    "Key point 2 in simple language",
-    "Key point 3 in simple language",
-    "Key point 4 in simple language"
-  ],
-  "legalTopics": ["Constitutional Law", "Criminal Law"],
   "actions": [
     {
       "task": "",
       "department": "",
-      "departmentCode": "Revenue|Land Records|Police|Labour|Municipal|PWD|Law and Justice|Other",
+      "departmentCode": "Revenue|Land Records|Police|Labour|Municipal|PWD|Other",
       "paragraph": "",
       "deadline": "",
       "priority": "High|Medium|Low"
@@ -72,70 +78,62 @@ Analyze the following court judgment and return ONLY valid JSON, no markdown, no
 }
 
 Rules:
-- summary must be in very simple English, avoid legal jargon
-- verdict must be clear and direct
-- keyPoints should be 3-5 bullet points a common person can understand
-- legalTopics should be 2-4 tags like: Constitutional Law, Criminal Law, Property Law, Contract Law, Family Law, Labour Law, Tax Law, Environmental Law, Human Rights, etc.
+- Extract REAL data from the document, not placeholders
+- If a field is not found, use "Not specified"
+- confidenceScore should be 60-95 based on text clarity
+- riskLevel based on urgency and number of actions
 - Extract ALL action items with responsible departments
+- deadline format: DD Mon YYYY or "Not specified"
 
 JUDGMENT TEXT:
 ${text.substring(0, 12000)}`;
 
+    // 🤖 Call OpenAI
     const completion = await openai.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: "gpt-4o-mini",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.1,
     });
 
     let aiResponse = completion.choices[0].message.content;
+
+    // 🧹 Strip any markdown fences if present
     aiResponse = aiResponse.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
 
+    const parsed = JSON.parse(aiResponse);
+
+    // 🧹 Clean up uploaded file
     fs.unlinkSync(filePath);
-    res.json({ success: true, judgmentText: text.substring(0, 12000), data: JSON.parse(aiResponse) });
 
-  } catch (err) {
-    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-    console.error("Error:", err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// 💬 CHAT ENDPOINT
-app.post("/chat", async (req, res) => {
-  const { question, judgmentText, history = [] } = req.body;
-  if (!question || !judgmentText) return res.status(400).json({ error: "Missing question or judgment text" });
-
-  try {
-    const messages = [
-      {
-        role: "system",
-        content: `You are a helpful legal assistant. Answer questions ONLY based on the court judgment text provided below. 
-If the answer is not in the judgment, say "I could not find that in this judgment."
-Keep answers clear, simple, and concise. Avoid heavy legal jargon.
-
-JUDGMENT TEXT:
-${judgmentText}`
-      },
-      ...history,
-      { role: "user", content: question }
-    ];
-
-    const completion = await openai.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages,
-      temperature: 0.3,
-      max_tokens: 500,
+    res.json({
+      success: true,
+      fileName: req.file.originalname,
+      pages: pdfData.numpages,
+      data: parsed,
     });
 
-    res.json({ answer: completion.choices[0].message.content });
-
   } catch (err) {
-    console.error("Chat error:", err.message);
-    res.status(500).json({ error: err.message });
+    // Clean up file on error
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+
+    console.error("Processing error:", err.message);
+
+    if (err instanceof SyntaxError) {
+      return res.status(500).json({ error: "AI returned malformed response. Please try again." });
+    }
+    if (err.status === 401) {
+      return res.status(500).json({ error: "Invalid OpenAI API key. Check your .env file." });
+    }
+    if (err.status === 429) {
+      return res.status(429).json({ error: "OpenAI rate limit hit. Please wait a moment and retry." });
+    }
+
+    res.status(500).json({ error: "Processing failed: " + err.message });
   }
 });
 
-app.listen(process.env.PORT || 5000, () => {
-  console.log(`🚀 NyayaSetu Backend running on http://localhost:5000`);
-  console.log(`📋 POST http://localhost:5000/process  — upload a PDF`);
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`\n🚀 NyayaSetu Backend running on http://localhost:${PORT}`);
+  console.log(`📋 POST http://localhost:${PORT}/process  — upload a PDF\n`);
 });
