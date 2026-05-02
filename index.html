@@ -1,0 +1,892 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600&family=DM+Sans:wght@400;500&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --navy:#0B1E3D;--navy2:#112750;--navy3:#1A3A6B;
+    --gold:#C8973A;--gold2:#E8B860;--gold3:#F5D080;
+    --ink:#0B1E3D;--muted:#5A6A85;--pale:#EEF2F8;
+    --white:#FFFFFF;--border:#D0DAEA;
+    --green:#1B6B3A;--greenl:#E6F4ED;
+    --red:#A32D2D;--redl:#FCEBEB;
+    --amber:#854F0B;--amberl:#FAEEDA;
+    --blue:#185FA5;--bluel:#E6F1FB;
+    --radius:8px;--radius-lg:12px;
+  }
+  body{font-family:'DM Sans',sans-serif;background:var(--pale);color:var(--ink);min-height:600px}
+  .screen{display:none;min-height:600px;animation:fadeIn 0.3s ease}
+  .screen.active{display:flex}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+  /* LOGIN */
+  #s-login{flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,var(--navy) 0%,var(--navy3) 100%);padding:2rem}
+  .login-emblem{width:64px;height:64px;border:2px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;color:var(--gold);font-size:28px}
+  .login-title{font-family:'Crimson Pro',serif;font-size:30px;color:var(--white);text-align:center;font-weight:600;letter-spacing:0.5px}
+  .login-sub{font-size:12px;color:rgba(255,255,255,0.5);text-align:center;letter-spacing:2px;text-transform:uppercase;margin:4px 0 2rem}
+  .login-card{background:rgba(255,255,255,0.06);border:0.5px solid rgba(255,255,255,0.15);border-radius:var(--radius-lg);padding:2rem;width:100%;max-width:380px}
+  .lfield{margin-bottom:1rem}
+  .lfield label{display:block;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:6px}
+  .lfield input,.lfield select{width:100%;background:rgba(255,255,255,0.08);border:0.5px solid rgba(255,255,255,0.2);border-radius:var(--radius);padding:10px 12px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;outline:none}
+  .lfield input::placeholder{color:rgba(255,255,255,0.3)}
+  .lfield select option{background:var(--navy);color:var(--white)}
+  .btn-login{width:100%;padding:12px;background:var(--gold);border:none;border-radius:var(--radius);color:var(--navy);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;margin-top:0.5rem;letter-spacing:0.5px;transition:background 0.2s}
+  .btn-login:hover{background:var(--gold2)}
+  .sec-badge{display:flex;align-items:center;gap:6px;justify-content:center;margin-top:1.25rem;font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:1px;text-transform:uppercase}
+  .sec-dot{width:6px;height:6px;border-radius:50%;background:#2ECC71}
+
+  /* TOPBAR */
+  .topbar{background:var(--navy);padding:0 1.25rem;display:flex;align-items:center;justify-content:space-between;height:52px;border-bottom:1px solid rgba(255,255,255,0.1);flex-shrink:0}
+  .topbar-brand{font-family:'Crimson Pro',serif;font-size:18px;color:var(--white);font-weight:600}
+  .topbar-brand span{color:var(--gold)}
+  .topbar-nav{display:flex;gap:4px}
+  .nav-btn{padding:6px 14px;border-radius:var(--radius);border:none;background:transparent;color:rgba(255,255,255,0.6);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all 0.15s;letter-spacing:0.5px}
+  .nav-btn.active,.nav-btn:hover{background:rgba(255,255,255,0.1);color:var(--white)}
+  .topbar-user{display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,0.6)}
+  .role-pill{background:var(--gold);color:var(--navy);padding:2px 8px;border-radius:99px;font-size:10px;font-weight:500;letter-spacing:0.5px}
+
+  /* UPLOAD */
+  #s-upload{flex-direction:column}
+  .page-body{flex:1;padding:1.5rem;display:flex;flex-direction:column;gap:1rem}
+  .section-title{font-family:'Crimson Pro',serif;font-size:18px;color:var(--navy);font-weight:600}
+  .upload-zone{border:1.5px dashed var(--border);border-radius:var(--radius-lg);padding:2.5rem;text-align:center;background:var(--white);cursor:pointer;transition:all 0.2s}
+  .upload-zone:hover{border-color:var(--gold);background:#FFFBF3}
+  .upload-icon{font-size:32px;margin-bottom:0.75rem}
+  .upload-zone p{font-size:13px;color:var(--muted)}
+  .upload-zone strong{display:block;font-size:15px;color:var(--ink);margin-bottom:4px}
+  .file-meta{background:var(--white);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem;display:none}
+  .file-meta.show{display:flex;align-items:center;gap:12px}
+  .file-icon-box{width:40px;height:40px;background:var(--redl);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .file-name{font-size:14px;font-weight:500;color:var(--ink)}
+  .file-size{font-size:12px;color:var(--muted)}
+  .btn-primary{padding:10px 20px;background:var(--navy);border:none;border-radius:var(--radius);color:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;letter-spacing:0.3px;transition:background 0.2s;white-space:nowrap}
+  .btn-primary:hover{background:var(--navy3)}
+  .btn-primary:disabled{background:#B0BAC9;cursor:not-allowed}
+  .process-log{background:var(--navy);border-radius:var(--radius-lg);padding:1rem 1.25rem;display:none;font-family:monospace;font-size:12px}
+  .process-log.show{display:block}
+  .log-line{color:rgba(255,255,255,0.5);line-height:1.8;transition:color 0.3s}
+  .log-line.done{color:#2ECC71}
+  .log-line.active{color:var(--gold2)}
+  .progress-bar-wrap{height:4px;background:rgba(255,255,255,0.1);border-radius:2px;margin:10px 0 4px;overflow:hidden}
+  .progress-bar{height:100%;background:var(--gold2);border-radius:2px;width:0;transition:width 0.4s ease}
+  .processing-label{font-size:12px;color:rgba(255,255,255,0.45);font-style:italic;margin-top:6px}
+
+  /* VERIFY */
+  #s-verify{flex-direction:column}
+  .verify-body{flex:1;padding:1.5rem;display:flex;flex-direction:column;gap:1rem;overflow-y:auto}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;align-items:start}
+  .verdict-card{border-radius:var(--radius-lg);padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;margin-bottom:0}
+  .verdict-allowed{background:var(--greenl);border:1px solid #1B6B3A44}
+  .verdict-dismissed{background:var(--redl);border:1px solid #A32D2D44}
+  .verdict-partial{background:var(--amberl);border:1px solid #854F0B44}
+  .verdict-stayed{background:var(--bluel);border:1px solid #185FA544}
+  .verdict-icon{font-size:32px;flex-shrink:0}
+  .verdict-label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+  .verdict-text{font-family:'Crimson Pro',serif;font-size:17px;font-weight:600;color:var(--ink);line-height:1.4}
+  .summary-card{background:var(--white);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem}
+  .summary-text{font-size:14px;color:var(--ink);line-height:1.7}
+  .keypoints-list{list-style:none;display:flex;flex-direction:column;gap:8px;margin-top:0.75rem}
+  .keypoints-list li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--ink);line-height:1.5}
+  .kp-dot{width:20px;height:20px;background:var(--navy);color:var(--white);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;margin-top:1px}
+  .topics-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:0.75rem}
+  .topic-tag{padding:4px 12px;border-radius:99px;font-size:11px;font-weight:500;letter-spacing:0.5px}
+  .topic-0{background:#E8F0FE;color:#1A56DB}
+  .topic-1{background:#FEF3C7;color:#92400E}
+  .topic-2{background:#D1FAE5;color:#065F46}
+  .topic-3{background:#FCE7F3;color:#9D174D}
+  .topic-4{background:#EDE9FE;color:#5B21B6}
+  .topic-5{background:#FEE2E2;color:#991B1B}
+  .two-col{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:1rem;padding:1.5rem;align-items:start}
+  .panel{background:var(--white);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem}
+  .panel-title{font-family:'Crimson Pro',serif;font-size:16px;color:var(--navy);font-weight:600;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+  .conf-badge{background:var(--amberl);color:var(--amber);font-size:11px;padding:3px 8px;border-radius:99px;font-family:'DM Sans',sans-serif;font-weight:500;white-space:nowrap}
+  .risk-badge{background:var(--redl);color:var(--red);font-size:11px;padding:3px 10px;border-radius:99px;font-family:'DM Sans',sans-serif;font-weight:500;white-space:nowrap;display:flex;align-items:center;gap:4px}
+  .ai-disclaimer{background:#FFFBEF;border:0.5px solid #E8C96A;border-radius:var(--radius);padding:8px 12px;font-size:12px;color:#6B4E00;margin-bottom:1rem;display:flex;align-items:flex-start;gap:7px;line-height:1.5}
+  .disclaimer-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+  .info-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px}
+  .info-label{color:var(--muted)}
+  .info-val{font-weight:500;color:var(--ink);text-align:right;max-width:55%}
+  .action-item{border:0.5px solid var(--border);border-radius:var(--radius);padding:0.875rem;margin-bottom:0.75rem;background:var(--pale);cursor:default}
+  .action-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}
+  .action-title{font-size:13px;font-weight:500;color:var(--ink);flex:1}
+  .dept-tag{font-size:10px;padding:2px 8px;border-radius:99px;white-space:nowrap;font-weight:500}
+  .dept-revenue{background:var(--bluel);color:var(--blue)}
+  .dept-land{background:var(--greenl);color:var(--green)}
+  .dept-police{background:var(--redl);color:var(--red)}
+  .dept-labour{background:var(--amberl);color:var(--amber)}
+  .dept-municipal{background:#F3EAF8;color:#6B2FA0}
+  .dept-pwd{background:var(--greenl);color:var(--green)}
+  .action-cite{font-size:11px;color:var(--muted);margin-bottom:6px}
+  .deadline-row{font-size:11px;display:flex;gap:8px;color:var(--muted)}
+  .deadline-row span{color:var(--ink);font-weight:500}
+  .verify-field{margin-bottom:1rem}
+  .verify-field label{display:block;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+  .verify-field input,.verify-field textarea,.verify-field select{width:100%;border:0.5px solid var(--border);border-radius:var(--radius);padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:var(--white);outline:none;resize:vertical}
+  .verify-field textarea{min-height:70px}
+  .btn-approve{width:100%;padding:12px;background:var(--green);border:none;border-radius:var(--radius);color:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;margin-top:0.5rem;transition:background 0.2s;letter-spacing:0.3px}
+  .btn-approve:hover:not(:disabled){background:#145530}
+  .btn-approve:disabled{opacity:0.7;cursor:not-allowed}
+  .btn-download{width:100%;padding:10px;background:transparent;border:0.5px solid var(--border);border-radius:var(--radius);color:var(--navy);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;margin-top:8px;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:6px}
+  .btn-download:hover{background:var(--pale);border-color:var(--navy)}
+  .stamp{display:none;align-items:center;gap:8px;background:var(--greenl);border:1px solid #1B6B3A44;border-radius:var(--radius);padding:10px 14px;margin-top:0.75rem;font-size:13px;color:var(--green);font-weight:500}
+  .stamp.show{display:flex}
+  .checkmark{font-size:16px}
+
+  /* TOAST */
+  .toast-container{position:fixed;top:16px;right:16px;display:flex;flex-direction:column;gap:8px;z-index:9999;pointer-events:none}
+  .toast{background:var(--navy);color:var(--white);border-radius:var(--radius-lg);padding:12px 16px;font-size:13px;min-width:260px;max-width:320px;border-left:3px solid var(--gold);pointer-events:none;animation:toastIn 0.3s ease,toastOut 0.4s ease 2.6s forwards;opacity:0;transform:translateX(20px)}
+  @keyframes toastIn{to{opacity:1;transform:translateX(0)}}
+  @keyframes toastOut{to{opacity:0;transform:translateX(20px)}}
+  .toast-title{font-weight:500;margin-bottom:3px;font-size:12px;letter-spacing:0.5px;color:var(--gold2)}
+  .toast-body{color:rgba(255,255,255,0.75);font-size:12px;line-height:1.4}
+
+  /* DASHBOARD */
+  #s-dashboard{flex-direction:column}
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;padding:1.25rem 1.5rem 0}
+  .stat-card{background:var(--white);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem}
+  .stat-label{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .stat-num{font-family:'Crimson Pro',serif;font-size:30px;font-weight:600;color:var(--navy);line-height:1}
+  .stat-num.green{color:var(--green)}
+  .stat-num.amber{color:var(--amber)}
+  .stat-num.red{color:var(--red)}
+  .dash-body{padding:1rem 1.5rem 1.5rem}
+  .filter-row{display:flex;gap:6px;margin-bottom:1rem;align-items:center}
+  .filter-label{font-size:12px;color:var(--muted);margin-right:4px}
+  .filter-btn{padding:5px 14px;border-radius:99px;border:0.5px solid var(--border);background:var(--white);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all 0.15s}
+  .filter-btn.active{background:var(--navy);color:var(--white);border-color:var(--navy)}
+  .register{background:var(--white);border:0.5px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+  .reg-header{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;padding:10px 1.25rem;background:var(--pale);border-bottom:0.5px solid var(--border);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+  .reg-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;padding:12px 1.25rem;border-bottom:0.5px solid var(--border);align-items:center;font-size:13px;transition:background 0.15s}
+  .reg-row:last-child{border-bottom:none}
+  .reg-row:hover{background:var(--pale)}
+  .reg-row.overdue{background:#FFF8F8}
+  .reg-row.overdue:hover{background:#FFEFEF}
+  .reg-row.new-entry{animation:highlightNew 2s ease forwards}
+  @keyframes highlightNew{0%{background:#FFFBEF}100%{background:transparent}}
+  .status-pill{font-size:10px;padding:3px 10px;border-radius:99px;font-weight:500;white-space:nowrap;display:inline-block}
+  .s-pending{background:var(--amberl);color:var(--amber)}
+  .s-done{background:var(--greenl);color:var(--green)}
+  .s-overdue{background:var(--redl);color:var(--red)}
+  .case-id{font-weight:500;color:var(--blue);font-size:12px}
+  .action-desc{color:var(--ink);line-height:1.3}
+  .overdue-flag{font-size:10px;color:var(--red);font-weight:500;margin-top:2px}
+  .new-flag{font-size:10px;color:var(--green);font-weight:500;margin-top:2px}
+</style>
+
+<div id="app">
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toasts"></div>
+
+<!-- SCREEN 1: LOGIN -->
+<div id="s-login" class="screen active" style="flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(160deg,var(--navy) 0%,var(--navy3) 100%);padding:2rem">
+  <div class="login-emblem">&#9878;</div>
+  <div class="login-title">NyayaSetu</div>
+  <div class="login-sub">Judicial Action Gateway &bull; Ministry of Law &amp; Justice</div>
+  <div class="login-card">
+    <div class="lfield"><label>Official ID</label><input type="text" value="JUD-2024-0147"/></div>
+    <div class="lfield"><label>Passphrase</label><input type="password" value="secure123"/></div>
+    <div class="lfield">
+      <label>Role</label>
+      <select id="role-sel">
+        <option value="judge">District Judge</option>
+        <option value="official">Court Official</option>
+        <option value="head">Department Head</option>
+      </select>
+    </div>
+    <button class="btn-login" onclick="doLogin()">Access Secure Portal</button>
+    <div class="sec-badge"><div class="sec-dot"></div> 256-bit encrypted session</div>
+  </div>
+</div>
+
+<!-- SCREEN 2: UPLOAD -->
+<div id="s-upload" class="screen" style="flex-direction:column">
+  <div class="topbar">
+    <div class="topbar-brand">Nyaya<span>Setu</span></div>
+    <div class="topbar-nav">
+      <button class="nav-btn active" onclick="goto('upload')">Upload</button>
+      <button class="nav-btn" onclick="goto('verify')">AI Output</button>
+      <button class="nav-btn" onclick="goto('dashboard')">Dashboard</button>
+      <button class="nav-btn" onclick="goto('chat')">Chat</button>
+    </div>
+    <div class="topbar-user"><span id="uname">Judge Mehra</span><span class="role-pill" id="urole">District Judge</span></div>
+  </div>
+  <div class="page-body">
+    <div class="section-title">Upload Judgment Document</div>
+    <!-- Hidden real file input -->
+    <input type="file" id="real-file-input" accept="application/pdf" style="display:none" onchange="handleFileSelected(this)"/>
+    <div class="upload-zone" id="dropzone"
+      onclick="document.getElementById('real-file-input').click()"
+      ondragover="event.preventDefault();this.style.borderColor='var(--gold)'"
+      ondragleave="this.style.borderColor=''"
+      ondrop="event.preventDefault();handleFileDrop(event)"
+      style="cursor:pointer">
+      <div class="upload-icon">&#128196;</div>
+      <strong>Click to select or drag a PDF here</strong>
+      <p>Supports digitally signed court orders &bull; Max 50MB</p>
+    </div>
+    <div class="file-meta" id="file-meta">
+      <div class="file-icon-box">&#128196;</div>
+      <div style="flex:1">
+        <div class="file-name" id="selected-file-name">No file selected</div>
+        <div class="file-size" id="selected-file-size"></div>
+      </div>
+      <button class="btn-primary" id="proc-btn" onclick="startProcessingReal()" style="cursor:pointer">Process Judgment</button>
+    </div>
+    <div class="process-log" id="proc-log">
+      <div style="color:var(--gold2);font-size:11px;letter-spacing:1.5px;margin-bottom:10px">AI PROCESSING PIPELINE</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.4);font-style:italic;margin-bottom:8px" id="proc-label">Processing judicial document using AI…</div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="prog-bar"></div></div>
+      <div id="log-lines"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 3: AI OUTPUT + VERIFICATION -->
+<div id="s-verify" class="screen" style="flex-direction:column">
+  <div class="topbar">
+    <div class="topbar-brand">Nyaya<span>Setu</span></div>
+    <div class="topbar-nav">
+      <button class="nav-btn" onclick="goto('upload')">Upload</button>
+      <button class="nav-btn active" onclick="goto('verify')">AI Output</button>
+      <button class="nav-btn" onclick="goto('dashboard')">Dashboard</button>
+      <button class="nav-btn" onclick="goto('chat')">Chat</button>
+    </div>
+    <div class="topbar-user"><span id="uname2">Judge Mehra</span><span class="role-pill" id="urole2">District Judge</span></div>
+  </div>
+  <div class="verify-body">
+
+    <!-- TOP ROW -->
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="ai-disclaimer" style="margin:0;flex:1">
+        <span class="disclaimer-icon">&#128712;</span>
+        <span><strong>AI-generated output.</strong> Subject to mandatory human verification before dispatch.</span>
+      </div>
+      <button onclick="resetAndUploadNew()" style="margin-left:1rem;padding:8px 16px;background:var(--white);border:0.5px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:12px;color:var(--navy);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;flex-shrink:0">
+        ↩ New Judgment
+      </button>
+    </div>
+
+    <!-- VERDICT CARD -->
+    <div class="verdict-card verdict-allowed" id="verdict-card">
+      <div class="verdict-icon" id="verdict-icon">⚖️</div>
+      <div style="flex:1">
+        <div class="verdict-label">Court Verdict</div>
+        <div class="verdict-text" id="ai-verdict">Upload a judgment PDF to see the verdict here.</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <span class="risk-badge" id="ai-risk" style="display:block;margin-bottom:4px">&#9888; Risk: —</span>
+        <span class="conf-badge" id="ai-conf">AI Confidence: —</span>
+      </div>
+    </div>
+
+    <div class="two-col" style="padding:0">
+      <!-- LEFT COLUMN -->
+      <div style="display:flex;flex-direction:column;gap:1rem">
+
+        <!-- Case Info -->
+        <div class="summary-card">
+          <div class="panel-title" style="margin-bottom:0.75rem;padding-bottom:0.75rem;border-bottom:0.5px solid var(--border)">🧾 Case Information</div>
+          <div class="info-row"><span class="info-label">Case Number</span><span class="info-val" id="ai-case">—</span></div>
+          <div class="info-row"><span class="info-label">Judgment Date</span><span class="info-val" id="ai-date">—</span></div>
+          <div class="info-row"><span class="info-label">Presiding Judge</span><span class="info-val" id="ai-judge">—</span></div>
+          <div class="info-row"><span class="info-label">Court</span><span class="info-val" id="ai-court">—</span></div>
+          <div class="info-row"><span class="info-label">Case Type</span><span class="info-val" id="ai-type">—</span></div>
+          <div class="info-row" style="margin:0"><span class="info-label">Parties</span><span class="info-val" id="ai-parties">—</span></div>
+        </div>
+
+        <!-- Summary -->
+        <div class="summary-card">
+          <div class="panel-title" style="margin-bottom:0.75rem;padding-bottom:0.75rem;border-bottom:0.5px solid var(--border)">🧾 Case Summary <span style="font-size:11px;font-weight:400;color:var(--muted);font-family:'DM Sans',sans-serif">(Simple English)</span></div>
+          <div class="summary-text" id="ai-summary">Process a PDF to see the summary.</div>
+        </div>
+
+        <!-- Key Points -->
+        <div class="summary-card">
+          <div class="panel-title" style="margin-bottom:0.75rem;padding-bottom:0.75rem;border-bottom:0.5px solid var(--border)">📌 Key Points</div>
+          <ul class="keypoints-list" id="ai-keypoints">
+            <li><span class="kp-dot">—</span><span>Upload a judgment to see key points.</span></li>
+          </ul>
+        </div>
+
+        <!-- Legal Topics -->
+        <div class="summary-card">
+          <div class="panel-title" style="margin-bottom:0.5rem;padding-bottom:0.75rem;border-bottom:0.5px solid var(--border)">🧠 Legal Topics</div>
+          <div class="topics-row" id="ai-topics">
+            <span class="topic-tag topic-0">—</span>
+          </div>
+        </div>
+
+        <!-- Action Items -->
+        <div class="summary-card">
+          <div class="panel-title" style="margin-bottom:0.75rem;padding-bottom:0.75rem;border-bottom:0.5px solid var(--border)">⚡ Extracted Action Items</div>
+          <div id="ai-actions"><div style="color:var(--muted);font-size:13px;text-align:center;padding:1rem">Upload and process a PDF to see AI-extracted actions.</div></div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: Verification -->
+      <div>
+        <div class="panel" style="position:sticky;top:1rem">
+          <div class="panel-title">Human Verification Panel</div>
+          <div class="verify-field"><label>Verified Case Number</label><input type="text" id="v-case" value=""/></div>
+          <div class="verify-field"><label>Verified Judgment Date</label><input type="text" id="v-date" value=""/></div>
+          <div class="verify-field"><label>Verifying Officer</label><input type="text" id="verifier-name" value=""/></div>
+          <div class="verify-field">
+            <label>Verification Notes</label>
+            <textarea id="v-notes" placeholder="Add your verification notes here…"></textarea>
+          </div>
+          <div class="verify-field">
+            <label>Dispatch Priority</label>
+            <select><option>Urgent — within 24 hours</option><option>Standard — within 48 hours</option><option>Routine — within 7 days</option></select>
+          </div>
+          <button class="btn-approve" id="approve-btn" onclick="doApprove()" style="cursor:pointer">Approve &amp; Dispatch to Departments</button>
+          <button class="btn-download" id="dl-btn" onclick="doDownload()" style="cursor:pointer;display:none">
+            <span>&#8659;</span> Download Verified Report (PDF)
+          </button>
+          <div class="stamp" id="v-stamp">
+            <span class="checkmark">&#10003;</span>
+            Verified &amp; dispatched by <strong style="margin:0 4px" id="stamp-who">—</strong> &bull; <span id="stamp-time"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SCREEN 4: DASHBOARD -->
+<div id="s-dashboard" class="screen" style="flex-direction:column">
+  <div class="topbar">
+    <div class="topbar-brand">Nyaya<span>Setu</span></div>
+    <div class="topbar-nav">
+      <button class="nav-btn" onclick="goto('upload')">Upload</button>
+      <button class="nav-btn" onclick="goto('verify')">AI Output</button>
+      <button class="nav-btn active" onclick="goto('dashboard')">Dashboard</button>
+      <button class="nav-btn" onclick="goto('chat')">Chat</button>
+    </div>
+    <div class="topbar-user"><span id="uname3">Judge Mehra</span><span class="role-pill" id="urole3">District Judge</span></div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-label">Total Actions</div><div class="stat-num" id="stat-total">24</div></div>
+    <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-num amber" id="stat-pending">9</div></div>
+    <div class="stat-card"><div class="stat-label">Completed</div><div class="stat-num green" id="stat-done">12</div></div>
+    <div class="stat-card"><div class="stat-label">Overdue</div><div class="stat-num red" id="stat-overdue">3</div></div>
+  </div>
+  <div class="dash-body">
+    <div class="filter-row">
+      <span class="filter-label">Filter:</span>
+      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('pending',this)">Pending</button>
+      <button class="filter-btn" onclick="setFilter('done',this)">Completed</button>
+      <button class="filter-btn" onclick="setFilter('overdue',this)">Overdue</button>
+    </div>
+    <div class="register">
+      <div class="reg-header">
+        <div>Action Description</div><div>Department</div><div>Case ID</div><div>Deadline</div><div>Status</div>
+      </div>
+      <div id="reg-body"></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const BACKEND_URL = "https://nyayasetu-backend-elpt.onrender.com";
+
+let actions = [
+  {desc:"Release encumbrance certificate",dept:"Revenue",dc:"dept-revenue",case:"2024-CR-7841",deadline:"14 Dec 2024",status:"pending",overdue:false,isNew:false},
+  {desc:"Update mutation entry Survey No. 204/B",dept:"Land Records",dc:"dept-land",case:"2024-CR-7841",deadline:"28 Dec 2024",status:"pending",overdue:false,isNew:false},
+  {desc:"Vacate illegal occupants — Survey 204/B",dept:"Police",dc:"dept-police",case:"2024-CR-7841",deadline:"29 Nov 2024",status:"overdue",overdue:true,isNew:false},
+  {desc:"Initiate workmen compensation proceedings",dept:"Labour",dc:"dept-labour",case:"2024-CR-7841",deadline:"31 Jan 2025",status:"pending",overdue:false,isNew:false},
+  {desc:"Process land acquisition compensation",dept:"Revenue",dc:"dept-revenue",case:"2023-LND-4412",deadline:"01 Nov 2024",status:"overdue",overdue:true,isNew:false},
+  {desc:"Restore demolished structure per court order",dept:"PWD",dc:"dept-pwd",case:"2023-LND-4412",deadline:"15 Nov 2024",status:"done",overdue:false,isNew:false},
+  {desc:"Register FIR against accused parties",dept:"Police",dc:"dept-police",case:"2024-CR-0219",deadline:"10 Nov 2024",status:"done",overdue:false,isNew:false},
+  {desc:"Issue back-wages to retrenched workers",dept:"Labour",dc:"dept-labour",case:"2024-LBR-8831",deadline:"20 Nov 2024",status:"done",overdue:false,isNew:false},
+  {desc:"Recover customs duty shortfall ₹14.2L",dept:"Revenue",dc:"dept-revenue",case:"2024-CUS-3301",deadline:"05 Dec 2024",status:"pending",overdue:false,isNew:false},
+  {desc:"Demolish unauthorized construction Site 7",dept:"Municipal",dc:"dept-municipal",case:"2024-MCH-1190",deadline:"30 Oct 2024",status:"overdue",overdue:true,isNew:false},
+  {desc:"Transfer land records to new titleholder",dept:"Land Records",dc:"dept-land",case:"2022-LND-9927",deadline:"12 Nov 2024",status:"done",overdue:false,isNew:false},
+  {desc:"Compensate displaced tenants",dept:"Revenue",dc:"dept-revenue",case:"2022-LND-9927",deadline:"30 Nov 2024",status:"pending",overdue:false,isNew:false},
+];
+
+let currentFilter = 'all';
+let userName = 'Judge A. K. Mehra';
+let userRole = 'District Judge';
+let approved = false;
+let selectedFile = null;
+let lastAiData = null;
+
+// ── Dept tag mapping ──────────────────────────────────────────────────────────
+const deptClassMap = {
+  "Revenue": "dept-revenue",
+  "Land Records": "dept-land",
+  "Police": "dept-police",
+  "Labour": "dept-labour",
+  "Municipal": "dept-municipal",
+  "PWD": "dept-pwd",
+  "Other": "dept-revenue",
+};
+function deptClass(dc) {
+  return deptClassMap[dc] || "dept-revenue";
+}
+
+// ── Login ─────────────────────────────────────────────────────────────────────
+function doLogin() {
+  const r = document.getElementById('role-sel').value;
+  const roles = {judge:'District Judge', official:'Court Official', head:'Department Head'};
+  const names = {judge:'Judge A. K. Mehra', official:'Shri R. Pillai', head:'Smt. P. Desai'};
+  userRole = roles[r]; userName = names[r];
+  ['uname','uname2','uname3','uname4'].forEach(id => document.getElementById(id).textContent = userName);
+  ['urole','urole2','urole3','urole4'].forEach(id => document.getElementById(id).textContent = userRole);
+  document.getElementById('verifier-name').value = userName + ', ' + userRole;
+  document.getElementById('stamp-who').textContent = userName;
+  goto('upload');
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+function goto(s) {
+  document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+  document.getElementById('s-' + s).classList.add('active');
+  const idx = {upload:0, verify:1, dashboard:2, chat:3}[s];
+  document.querySelectorAll('#s-' + s + ' .topbar .nav-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === idx);
+  });
+  if (s === 'dashboard') { updateStats(); renderTable(currentFilter); }
+  if (s === 'chat') {
+    const hasJudgment = !!judgmentText;
+    document.getElementById('no-judgment-warn').style.display = hasJudgment ? 'none' : 'flex';
+    document.getElementById('quick-btns').style.display = hasJudgment ? 'flex' : 'none';
+  }
+}
+
+// ── File Handling ─────────────────────────────────────────────────────────────
+function handleFileSelected(input) {
+  if (input.files && input.files[0]) setFile(input.files[0]);
+}
+
+function handleFileDrop(event) {
+  const file = event.dataTransfer.files[0];
+  if (file && file.type === 'application/pdf') setFile(file);
+  else showToast('Invalid File', 'Please upload a PDF document.');
+}
+
+function setFile(file) {
+  selectedFile = file;
+  const zone = document.getElementById('dropzone');
+  zone.style.borderColor = 'var(--gold)';
+  zone.style.background = '#FFFBF3';
+  zone.innerHTML = '<div class="upload-icon">&#128200;</div><strong>' + file.name + '</strong><p>File selected — ready to process</p>';
+  document.getElementById('file-meta').classList.add('show');
+  document.getElementById('selected-file-name').textContent = file.name;
+  document.getElementById('selected-file-size').textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB · Selected just now';
+  approved = false;
+}
+
+// ── Real Processing ───────────────────────────────────────────────────────────
+async function startProcessingReal() {
+  if (!selectedFile) {
+    showToast('No File', 'Please select a PDF first.');
+    return;
+  }
+
+  const btn = document.getElementById('proc-btn');
+  btn.disabled = true;
+  btn.textContent = 'Sending to AI…';
+
+  document.getElementById('proc-log').classList.add('show');
+
+  const steps = [
+    'Uploading PDF to server…',
+    'Extracting text from document…',
+    'Running NLP — identifying legal entities…',
+    'Extracting action directives & deadlines…',
+    'Mapping departments to extracted items…',
+    'Generating confidence scores…',
+    'Preparing structured output…',
+  ];
+
+  const logEl = document.getElementById('log-lines');
+  const bar = document.getElementById('prog-bar');
+  logEl.innerHTML = '';
+  steps.forEach(s => {
+    const d = document.createElement('div');
+    d.className = 'log-line'; d.textContent = '[ ] ' + s; logEl.appendChild(d);
+  });
+
+  // Animate first 5 steps while waiting for API
+  let i = 0;
+  const tick = setInterval(() => {
+    if (i > 0) {
+      logEl.children[i-1].className = 'log-line done';
+      logEl.children[i-1].textContent = logEl.children[i-1].textContent.replace('[ ]','[✓]');
+    }
+    if (i < steps.length - 2) { // Leave last 2 for real completion
+      logEl.children[i].className = 'log-line active';
+      bar.style.width = Math.round((i+1)/steps.length*80) + '%';
+      i++;
+    } else {
+      clearInterval(tick);
+    }
+  }, 600);
+
+  try {
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    const res = await fetch(BACKEND_URL + '/process', {
+      method: 'POST',
+      body: formData,
+    });
+
+    clearInterval(tick);
+
+    if (!res.ok) {
+      const errData = await res.json();
+      throw new Error(errData.error || 'Server error ' + res.status);
+    }
+
+    const result = await res.json();
+    lastAiData = result.data;
+    judgmentText = result.judgmentText || '';
+
+    // Finish log animation
+    while (i < steps.length) {
+      logEl.children[i].className = 'log-line done';
+      logEl.children[i].textContent = logEl.children[i].textContent.replace('[ ]','[✓]');
+      i++;
+    }
+    bar.style.width = '100%';
+    document.getElementById('proc-label').textContent = '✓ AI processing complete — reviewing output…';
+
+    populateVerifyPanel(result.data);
+    setTimeout(() => goto('verify'), 700);
+
+  } catch (err) {
+    clearInterval(tick);
+    btn.disabled = false;
+    btn.textContent = 'Process Judgment';
+    document.getElementById('proc-label').textContent = '✗ Error: ' + err.message;
+    document.getElementById('proc-label').style.color = 'var(--red)';
+    showToast('Processing Failed', err.message);
+    console.error(err);
+  }
+}
+
+// ── Populate Verify Panel with real AI data ───────────────────────────────────
+function populateVerifyPanel(data) {
+  document.getElementById('ai-case').textContent    = data.caseNumber    || '—';
+  document.getElementById('ai-date').textContent    = data.judgmentDate  || '—';
+  document.getElementById('ai-judge').textContent   = data.presidingJudge|| '—';
+  document.getElementById('ai-court').textContent   = data.court         || '—';
+  document.getElementById('ai-type').textContent    = data.caseType      || '—';
+  document.getElementById('ai-parties').textContent = data.parties       || '—';
+  document.getElementById('ai-risk').textContent    = '⚠ Risk: ' + (data.riskLevel || '—');
+  document.getElementById('ai-conf').textContent    = 'AI Confidence: ' + (data.confidenceScore || '—') + '%';
+
+  // Summary
+  document.getElementById('ai-summary').textContent = data.summary || 'No summary available.';
+
+  // Verdict card
+  const verdict = data.verdict || 'Verdict not specified.';
+  const vtype = (data.verdictType || '').toLowerCase();
+  document.getElementById('ai-verdict').textContent = verdict;
+  const card = document.getElementById('verdict-card');
+  card.className = 'verdict-card';
+  if (vtype.includes('allow'))        { card.classList.add('verdict-allowed');   document.getElementById('verdict-icon').textContent = '✅'; }
+  else if (vtype.includes('dismiss')) { card.classList.add('verdict-dismissed'); document.getElementById('verdict-icon').textContent = '❌'; }
+  else if (vtype.includes('partial')) { card.classList.add('verdict-partial');   document.getElementById('verdict-icon').textContent = '⚖️'; }
+  else if (vtype.includes('stay'))    { card.classList.add('verdict-stayed');    document.getElementById('verdict-icon').textContent = '⏸️'; }
+  else                                { card.classList.add('verdict-partial');   document.getElementById('verdict-icon').textContent = '⚖️'; }
+
+  // Key Points
+  const kpEl = document.getElementById('ai-keypoints');
+  if (data.keyPoints && data.keyPoints.length) {
+    kpEl.innerHTML = data.keyPoints.map((pt, i) =>
+      `<li><span class="kp-dot">${i+1}</span><span>${pt}</span></li>`
+    ).join('');
+  } else {
+    kpEl.innerHTML = '<li><span class="kp-dot">—</span><span>No key points extracted.</span></li>';
+  }
+
+  // Legal Topics
+  const topicsEl = document.getElementById('ai-topics');
+  if (data.legalTopics && data.legalTopics.length) {
+    topicsEl.innerHTML = data.legalTopics.map((t, i) =>
+      `<span class="topic-tag topic-${i % 6}">${t}</span>`
+    ).join('');
+  } else {
+    topicsEl.innerHTML = '<span class="topic-tag topic-0">General</span>';
+  }
+
+  // Pre-fill verification panel
+  document.getElementById('v-case').value = data.caseNumber   || '';
+  document.getElementById('v-date').value = data.judgmentDate || '';
+
+  // Render action items
+  const actEl = document.getElementById('ai-actions');
+  if (!data.actions || data.actions.length === 0) {
+    actEl.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:1rem">No action items extracted.</div>';
+    return;
+  }
+  actEl.innerHTML = data.actions.map((a, idx) => `
+    <div class="action-item" style="${idx === data.actions.length-1 ? 'margin-bottom:0' : ''}">
+      <div class="action-header">
+        <div class="action-title">${a.task}</div>
+        <span class="dept-tag ${deptClass(a.departmentCode)}">${a.department}</span>
+      </div>
+      ${a.paragraph ? `<div class="action-cite">&#182; ${a.paragraph}</div>` : ''}
+      <div class="deadline-row">Deadline: <span>${a.deadline || 'Not specified'}</span> &bull; Priority: <span>${a.priority || '—'}</span></div>
+    </div>
+  `).join('');
+}
+
+// ── Approve ───────────────────────────────────────────────────────────────────
+function doApprove() {
+  if (approved) return;
+  approved = true;
+  const now = new Date();
+  const t = now.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'});
+  const d = now.toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+  document.getElementById('stamp-time').textContent = d + ', ' + t;
+  document.getElementById('v-stamp').classList.add('show');
+  const ab = document.getElementById('approve-btn');
+  ab.textContent = 'Dispatched ✓'; ab.style.background = '#145530'; ab.disabled = true;
+  document.getElementById('dl-btn').style.display = 'flex';
+
+  // Push extracted actions into dashboard
+  if (lastAiData && lastAiData.actions) {
+    lastAiData.actions.forEach(a => {
+      actions.unshift({
+        desc: a.task,
+        dept: a.department,
+        dc: deptClass(a.departmentCode),
+        case: lastAiData.caseNumber || 'New',
+        deadline: a.deadline || 'TBD',
+        status: 'pending',
+        overdue: false,
+        isNew: true,
+      });
+    });
+  }
+
+  // Notify departments
+  const depts = lastAiData && lastAiData.actions
+    ? lastAiData.actions.slice(0, 4).map(a => ({dept: a.department, msg: a.task + '. Deadline: ' + (a.deadline || 'TBD')}))
+    : [{dept:'Court Registry', msg:'Judgment dispatched for action.'}];
+  depts.forEach((d, i) => setTimeout(() => showToast(d.dept, d.msg), i * 700));
+}
+
+// ── Download ──────────────────────────────────────────────────────────────────
+function doDownload() {
+  const btn = document.getElementById('dl-btn');
+  btn.textContent = 'Generating report…';
+  btn.style.color = 'var(--muted)';
+  const caseNum = lastAiData && lastAiData.caseNumber ? lastAiData.caseNumber.replace(/\//g,'_') : 'Judgment';
+  setTimeout(() => {
+    btn.innerHTML = '<span>&#10003;</span> Report ready — saved to system';
+    btn.style.color = 'var(--green)';
+    btn.style.borderColor = 'var(--green)';
+    showToast('Download Ready', caseNum + '_Verified.pdf has been saved.');
+  }, 1400);
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+function showToast(title, body) {
+  const c = document.getElementById('toasts');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = '<div class="toast-title">&#9993; Notified: ' + title + '</div><div class="toast-body">' + body + '</div>';
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+function updateStats() {
+  const total   = actions.length;
+  const pending = actions.filter(a => a.status === 'pending' && !a.overdue).length;
+  const done    = actions.filter(a => a.status === 'done').length;
+  const overdue = actions.filter(a => a.overdue).length;
+  document.getElementById('stat-total').textContent   = total;
+  document.getElementById('stat-pending').textContent = pending;
+  document.getElementById('stat-done').textContent    = done;
+  document.getElementById('stat-overdue').textContent = overdue;
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable(f);
+}
+
+function renderTable(f) {
+  const body = document.getElementById('reg-body');
+  let rows = actions;
+  if (f === 'pending') rows = actions.filter(a => a.status === 'pending' && !a.overdue);
+  else if (f === 'done') rows = actions.filter(a => a.status === 'done');
+  else if (f === 'overdue') rows = actions.filter(a => a.overdue);
+  body.innerHTML = rows.map(a => `
+    <div class="reg-row${a.overdue?' overdue':''}${a.isNew?' new-entry':''}">
+      <div>
+        <div class="action-desc">${a.desc}</div>
+        ${a.overdue ? '<div class="overdue-flag">&#9888; OVERDUE — action required</div>' : ''}
+        ${a.isNew   ? '<div class="new-flag">&#8679; Newly dispatched from current session</div>' : ''}
+      </div>
+      <div><span class="dept-tag ${a.dc}">${a.dept}</span></div>
+      <div class="case-id">${a.case}</div>
+      <div style="font-size:12px;color:${a.overdue?'var(--red)':'var(--muted)'}">${a.deadline}</div>
+      <div><span class="status-pill ${a.status==='done'?'s-done':a.overdue?'s-overdue':'s-pending'}">${a.status==='done'?'Completed':a.overdue?'Overdue':'Pending'}</span></div>
+    </div>
+  `).join('');
+}
+
+// ── Reset & upload new ────────────────────────────────────────────────────────
+function resetAndUploadNew() {
+  // Reset all state
+  selectedFile = null;
+  lastAiData = null;
+  judgmentText = '';
+  approved = false;
+  chatHistory = [];
+
+  // Reset upload zone
+  const zone = document.getElementById('dropzone');
+  zone.style.borderColor = '';
+  zone.style.background = '';
+  zone.innerHTML = '<div class="upload-icon">&#128196;</div><strong>Click to select or drag a PDF here</strong><p>Supports digitally signed court orders &bull; Max 50MB</p>';
+  document.getElementById('file-meta').classList.remove('show');
+  document.getElementById('proc-log').classList.remove('show');
+  document.getElementById('proc-label').textContent = 'AI Processing Pipeline';
+  document.getElementById('proc-label').style.color = '';
+  document.getElementById('prog-bar').style.width = '0%';
+  document.getElementById('proc-btn').disabled = false;
+  document.getElementById('proc-btn').textContent = 'Process Judgment';
+
+  // Reset verify panel
+  document.getElementById('approve-btn').disabled = false;
+  document.getElementById('approve-btn').textContent = 'Approve & Dispatch to Departments';
+  document.getElementById('approve-btn').style.background = '';
+  document.getElementById('v-stamp').classList.remove('show');
+  document.getElementById('dl-btn').style.display = 'none';
+
+  // Reset chat
+  document.getElementById('chat-messages').innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:2rem">⚖️ Process a judgment PDF and ask me anything about it!</div>';
+
+  goto('upload');
+}
+let chatHistory = [];
+let judgmentText = '';
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const q = input.value.trim();
+  if (!q) return;
+  if (!judgmentText) { appendChat('bot', '⚠️ Please upload and process a judgment PDF first.'); return; }
+
+  input.value = '';
+  appendChat('user', q);
+  chatHistory.push({ role: 'user', content: q });
+
+  const typingId = appendChat('bot', '...', true);
+
+  try {
+    const res = await fetch('http://localhost:5000/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: q, judgmentText, history: chatHistory.slice(-6) })
+    });
+    const data = await res.json();
+    const answer = data.answer || 'Sorry, I could not answer that.';
+    document.getElementById(typingId).remove();
+    appendChat('bot', answer);
+    chatHistory.push({ role: 'assistant', content: answer });
+  } catch(e) {
+    document.getElementById(typingId).remove();
+    appendChat('bot', '❌ Error connecting to server.');
+  }
+}
+
+function appendChat(role, text, isTyping=false) {
+  const box = document.getElementById('chat-messages');
+  const id = 'msg-' + Date.now();
+  const div = document.createElement('div');
+  div.id = id;
+  div.style.cssText = `display:flex;gap:8px;margin-bottom:12px;align-items:flex-start;${role==='user'?'flex-direction:row-reverse':''}`;
+  const avatar = document.createElement('div');
+  avatar.style.cssText = `width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:2px;background:${role==='user'?'var(--navy)':'var(--gold)'};color:${role==='user'?'white':'var(--navy)'}`;
+  avatar.textContent = role === 'user' ? '👤' : '⚖️';
+  const bubble = document.createElement('div');
+  bubble.style.cssText = `max-width:75%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.6;${role==='user'?'background:var(--navy);color:white;border-bottom-right-radius:3px':'background:var(--white);border:0.5px solid var(--border);color:var(--ink);border-bottom-left-radius:3px'}`;
+  bubble.textContent = isTyping ? '⏳ Thinking…' : text;
+  div.appendChild(avatar);
+  div.appendChild(bubble);
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  return id;
+}
+
+function askQuick(q) {
+  document.getElementById('chat-input').value = q;
+  sendChat();
+}
+</script>
+
+<style>
+  #s-chat{flex-direction:column}
+  .chat-body{flex:1;display:flex;flex-direction:column;padding:1.5rem;gap:1rem;max-width:860px;margin:0 auto;width:100%}
+  .chat-header{font-family:'Crimson Pro',serif;font-size:18px;color:var(--navy);font-weight:600}
+  .chat-sub{font-size:13px;color:var(--muted);margin-top:2px}
+  .quick-btns{display:flex;gap:8px;flex-wrap:wrap}
+  .quick-btn{padding:7px 14px;border-radius:99px;border:0.5px solid var(--border);background:var(--white);color:var(--navy);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;transition:all 0.15s}
+  .quick-btn:hover{background:var(--navy);color:white;border-color:var(--navy)}
+  .chat-window{flex:1;background:var(--white);border:0.5px solid var(--border);border-radius:var(--radius-lg);display:flex;flex-direction:column;min-height:400px}
+  .chat-messages{flex:1;padding:1.25rem;overflow-y:auto;display:flex;flex-direction:column}
+  .chat-input-row{display:flex;gap:8px;padding:1rem 1.25rem;border-top:0.5px solid var(--border)}
+  .chat-input-row input{flex:1;border:0.5px solid var(--border);border-radius:var(--radius);padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);outline:none}
+  .chat-input-row input:focus{border-color:var(--navy)}
+  .chat-send{padding:10px 18px;background:var(--navy);border:none;border-radius:var(--radius);color:white;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:background 0.2s}
+  .chat-send:hover{background:var(--navy3)}
+  .no-judgment{background:var(--amberl);border:0.5px solid #E8C96A;border-radius:var(--radius);padding:12px 16px;font-size:13px;color:var(--amber);display:flex;align-items:center;gap:8px}
+</style>
+
+<!-- SCREEN 5: CHAT -->
+<div id="s-chat" class="screen" style="flex-direction:column">
+  <div class="topbar">
+    <div class="topbar-brand">Nyaya<span>Setu</span></div>
+    <div class="topbar-nav">
+      <button class="nav-btn" onclick="goto('upload')">Upload</button>
+      <button class="nav-btn" onclick="goto('verify')">AI Output</button>
+      <button class="nav-btn" onclick="goto('dashboard')">Dashboard</button>
+      <button class="nav-btn active" onclick="goto('chat')">Chat</button>
+    </div>
+    <div class="topbar-user"><span id="uname4">Judge Mehra</span><span class="role-pill" id="urole4">District Judge</span></div>
+  </div>
+  <div class="chat-body">
+    <div>
+      <div class="chat-header">💬 Ask the Judgment</div>
+      <div class="chat-sub">Ask anything about the uploaded court judgment in plain English</div>
+    </div>
+    <div id="no-judgment-warn" class="no-judgment">
+      ⚠️ No judgment loaded yet. Go to Upload tab and process a PDF first.
+    </div>
+    <div class="quick-btns" id="quick-btns" style="display:none">
+      <button class="quick-btn" onclick="askQuick('Who won this case?')">Who won? 🏆</button>
+      <button class="quick-btn" onclick="askQuick('Explain this case in very simple words')">Explain simply 📖</button>
+      <button class="quick-btn" onclick="askQuick('What was the final verdict?')">Final verdict ⚖️</button>
+      <button class="quick-btn" onclick="askQuick('What are the key legal points?')">Key legal points 📌</button>
+      <button class="quick-btn" onclick="askQuick('What action needs to be taken and by which department?')">Action items ⚡</button>
+      <button class="quick-btn" onclick="askQuick('What rights were involved in this case?')">Rights involved 🛡️</button>
+    </div>
+    <div class="chat-window">
+      <div class="chat-messages" id="chat-messages">
+        <div style="text-align:center;color:var(--muted);font-size:13px;padding:2rem">
+          ⚖️ Process a judgment PDF and ask me anything about it!
+        </div>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="Ask anything about this judgment…" onkeydown="if(event.key==='Enter')sendChat()"/>
+        <button class="chat-send" onclick="sendChat()">Send →</button>
+      </div>
+    </div>
+  </div>
+</div>

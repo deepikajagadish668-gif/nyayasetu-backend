@@ -10,7 +10,7 @@ dotenv.config();
 const app = express();
 app.use(cors({ origin: "*" }));
 app.use(express.json());
-
+app.use(express.static(__dirname));
 const upload = multer({ dest: "uploads/" });
 const openai = new Groq({ apiKey: process.env.OPENAI_API_KEY });
 
