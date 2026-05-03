@@ -411,7 +411,7 @@
 </div>
 
 <script>
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = "https://nyayasetu-backend-elpt.onrender.com";
 
 let actions = [
   {desc:"Release encumbrance certificate",dept:"Revenue",dc:"dept-revenue",case:"2024-CR-7841",deadline:"14 Dec 2024",status:"pending",overdue:false,isNew:false},
@@ -855,7 +855,7 @@ async function sendChat() {
   const typingId = appendChat('bot', '...', true);
 
   try {
-    const res = await fetch('http://localhost:5000/chat', {
+    const res = await fetch('https://nyayasetu-backend-elpt.onrender.com/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question: q, judgmentText, history: chatHistory.slice(-6) })
