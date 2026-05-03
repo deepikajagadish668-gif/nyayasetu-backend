@@ -797,6 +797,7 @@ async function translateOutput() {
     }
 
     btn.textContent = `✅ ${lang}`;
+btn.disabled = false;
     btn.style.background = 'var(--green)';
     showToast('Translated!', `Output translated to ${lang} successfully!`);
 
