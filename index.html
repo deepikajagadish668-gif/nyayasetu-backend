@@ -256,14 +256,33 @@
   <div class="verify-body">
 
     <!-- TOP ROW -->
-    <div style="display:flex;align-items:center;justify-content:space-between">
-      <div class="ai-disclaimer" style="margin:0;flex:1">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div class="ai-disclaimer" style="margin:0;flex:1;min-width:200px">
         <span class="disclaimer-icon">&#128712;</span>
         <span><strong>AI-generated output.</strong> Subject to mandatory human verification before dispatch.</span>
       </div>
-      <button onclick="resetAndUploadNew()" style="margin-left:1rem;padding:8px 16px;background:var(--white);border:0.5px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:12px;color:var(--navy);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;flex-shrink:0">
-        ↩ New Judgment
-      </button>
+      <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+        <select id="lang-select" style="padding:8px 12px;border:0.5px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:12px;color:var(--navy);background:var(--white);cursor:pointer">
+          <option value="English">🇬🇧 English</option>
+          <option value="Hindi">🇮🇳 हिंदी</option>
+          <option value="Kannada">🏔️ ಕನ್ನಡ</option>
+          <option value="Tamil">🌺 தமிழ்</option>
+          <option value="Telugu">🌴 తెలుగు</option>
+          <option value="Marathi">🦁 मराठी</option>
+          <option value="Bengali">🐯 বাংলা</option>
+          <option value="Gujarati">🦚 ગુજરાતી</option>
+          <option value="Malayalam">🌊 മലയാളം</option>
+          <option value="Punjabi">🌾 ਪੰਜਾਬੀ</option>
+          <option value="Odia">🌸 ଓଡ଼ିଆ</option>
+          <option value="Urdu">☪️ اردو</option>
+        </select>
+        <button onclick="translateOutput()" id="translate-btn" style="padding:8px 16px;background:var(--navy);border:none;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:12px;color:white;cursor:pointer;white-space:nowrap">
+          🌐 Translate
+        </button>
+        <button onclick="resetAndUploadNew()" style="padding:8px 16px;background:var(--white);border:0.5px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:12px;color:var(--navy);cursor:pointer;white-space:nowrap">
+          ↩ New Judgment
+        </button>
+      </div>
     </div>
 
     <!-- VERDICT CARD -->
@@ -392,7 +411,7 @@
 </div>
 
 <script>
-const BACKEND_URL = "https://nyayasetu-backend-elpt.onrender.com";
+const BACKEND_URL = "http://localhost:5000";
 
 let actions = [
   {desc:"Release encumbrance certificate",dept:"Revenue",dc:"dept-revenue",case:"2024-CR-7841",deadline:"14 Dec 2024",status:"pending",overdue:false,isNew:false},
@@ -740,7 +759,53 @@ function renderTable(f) {
   `).join('');
 }
 
-// ── Reset & upload new ────────────────────────────────────────────────────────
+// ── Translate Output ──────────────────────────────────────────────────────────
+async function translateOutput() {
+  if (!lastAiData) { showToast('No Data', 'Process a judgment first!'); return; }
+  const lang = document.getElementById('lang-select').value;
+  if (lang === 'English') { populateVerifyPanel(lastAiData); return; }
+
+  const btn = document.getElementById('translate-btn');
+  btn.textContent = '⏳ Translating...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(BACKEND_URL + '/translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        language: lang,
+        summary: lastAiData.summary,
+        verdict: lastAiData.verdict,
+        keyPoints: lastAiData.keyPoints,
+        parties: lastAiData.parties,
+        caseType: lastAiData.caseType,
+      })
+    });
+    const data = await res.json();
+
+    // Update UI with translated content
+    document.getElementById('ai-summary').textContent = data.summary || lastAiData.summary;
+    document.getElementById('ai-verdict').textContent = data.verdict || lastAiData.verdict;
+    document.getElementById('ai-parties').textContent = data.parties || lastAiData.parties;
+    document.getElementById('ai-type').textContent = data.caseType || lastAiData.caseType;
+
+    if (data.keyPoints && data.keyPoints.length) {
+      document.getElementById('ai-keypoints').innerHTML = data.keyPoints.map((pt, i) =>
+        `<li><span class="kp-dot">${i+1}</span><span>${pt}</span></li>`
+      ).join('');
+    }
+
+    btn.textContent = `✅ ${lang}`;
+    btn.style.background = 'var(--green)';
+    showToast('Translated!', `Output translated to ${lang} successfully!`);
+
+  } catch(e) {
+    btn.textContent = '🌐 Translate';
+    btn.disabled = false;
+    showToast('Error', 'Translation failed. Try again!');
+  }
+}
 function resetAndUploadNew() {
   // Reset all state
   selectedFile = null;
